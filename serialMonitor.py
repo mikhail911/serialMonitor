@@ -130,6 +130,7 @@ class serialMonitor(QMainWindow):
 			except serial.SerialException as e:
 				#There is no new data from serial port
 				self.reader.emit("Disconnect of USB->UART occured. \nRestart needed!")
+				self.statusbar.showMessage("Disconnected")
 				quit()
 		arduino.close()
 
