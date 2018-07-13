@@ -1,6 +1,6 @@
 import threading
-import sys
-from time import gmtime, strftime 
+import sys, os
+from time import gmtime, strftime
 import time
 import serial
 import serial.tools.list_ports
@@ -15,17 +15,20 @@ class serialMonitor(QMainWindow):
 	first_conn = True
 	current_port = ''
 	current_baud = 9600
-	filename = 'serialMonitorLogs/'+strftime("%a-%d-%b-%Y-%H-%M-%S", gmtime())+'.txt'
+	logging_dir = "serialMonitorLogs"
+	filename = ''+logging_dir +'/' + strftime("%a-%d-%b-%Y-%H-%M-%S", gmtime()) + '.txt'
 	baudrates = ["9600", "115200", "300", "1200", "2400", "4800", "14400", "19200", "31250", "38400", "57600"]
 
 	def __init__(self):
 		super(serialMonitor, self).__init__()
+		if not os.path.exists(self.logging_dir):
+			os.makedirs(self.logging_dir)
 		font = QtGui.QFont()
 		font.setPointSize(10)
 		self.startReadingPorts()
 		self.portLabel = QtWidgets.QLabel()
 		self.portLabel.setText("Serial port:")
-		self.portLabel.move(10,10)
+		self.portLabel.move(10, 10)
 		self.baudLabel = QtWidgets.QLabel()
 		self.baudLabel.setText("Baud rate:")
 		self.portBox = QtWidgets.QComboBox()
@@ -49,13 +52,13 @@ class serialMonitor(QMainWindow):
 		self.textEdit.setFontPointSize(10)
 		self.reader.connect(self.textEdit.append)
 		self.reader.connect(self.writeToFile)
-		self.statusbar =  QStatusBar()
+		self.statusbar = QStatusBar()
 		self.statusbar.showMessage(" ")
 		self.setGeometry(100, 100, 860, 640)
 		self.setWindowTitle('serialMonitor')
 		self.layoutH = QHBoxLayout()
 		self.layoutV = QVBoxLayout()
-		
+
 		self.layoutH.addWidget(self.portLabel)
 		self.layoutH.addWidget(self.portBox)
 		self.layoutH.addWidget(self.baudLabel)
@@ -63,7 +66,7 @@ class serialMonitor(QMainWindow):
 		self.layoutH.addWidget(self.scroll_button)
 		self.layoutH.addWidget(self.logging_button)
 		self.layoutV.addLayout(self.layoutH)
-		
+
 		self.layoutV.addWidget(self.buttonStart)
 		self.layoutV.addWidget(self.buttonStop)
 		self.layoutV.addWidget(self.textEdit)
@@ -128,7 +131,7 @@ class serialMonitor(QMainWindow):
 				data = arduino.readline()[:-1].decode("utf-8", "ignore")
 				self.reader.emit(str(data))
 			except serial.SerialException as e:
-				#There is no new data from serial port
+				# There is no new data from serial port
 				self.reader.emit("Disconnect of USB->UART occured. \nRestart needed!")
 				self.statusbar.showMessage("Disconnected")
 				quit()
@@ -143,15 +146,15 @@ class serialMonitor(QMainWindow):
 		if state == Qt.Checked:
 			self.logging = True
 			file = open(str(self.filename), 'w')
-			file.write("serialMonitor log file, created: "+strftime("%a %d %b %Y %H:%M:%S", gmtime())+"\n")
-			file.write("Selected port: "+self.current_port+", baud rate: "+str(self.current_baud)+"\n")
+			file.write("serialMonitor log file, created: " + strftime("%a %d %b %Y %H:%M:%S", gmtime()) + "\n")
+			file.write("Selected port: " + self.current_port + ", baud rate: " + str(self.current_baud) + "\n")
 			file.write("---------------------------------------------------------\n")
 			file.close()
 
 	def writeToFile(self, data):
 		if self.logging == True:
 			file = open(str(self.filename), 'a', encoding='utf-8')
-			file.write(""+strftime("%a %d %b %Y %H:%M:%S", gmtime())+" : ")
+			file.write("" + strftime("%a %d %b %Y %H:%M:%S", gmtime()) + " : ")
 			file.write(str(data))
 			file.write("\n")
 			file.close()
