@@ -7,6 +7,7 @@ import serial.tools.list_ports
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import QtGui, QtCore, QtWidgets
+from sys import platform as _platform
 
 class serialMonitor(QMainWindow):
 	reader = pyqtSignal(str)
@@ -77,7 +78,10 @@ class serialMonitor(QMainWindow):
 		self.setCentralWidget(self.widget)
 
 	def serial_ports(self):
-		ports = ['COM%s' % (i + 1) for i in range(256)]
+		if _platform == "linux" or _platform == "linux2":
+			ports = ['/dev/ttyS%s' % (i + 1) for i in range(256)]
+		elif _platform == "win32" or _platform == "win64":
+			ports = ['COM%s' % (i + 1) for i in range(256)]
 		result = []
 		while True:
 			for port in ports:
