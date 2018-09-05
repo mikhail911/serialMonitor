@@ -7,6 +7,7 @@ Simple application which allow to monitor serial port. Tested and working under 
 * Automatically detects active COM ports (only active COM ports will be shown in drop-down list) 
 * Allow to log into a file (default folder for log files is: serialMonitorLogs)
 * Autoscroll focus cursor on current received line
+* Send data to device via serial port
 
 ## Used libraries versions:
 
